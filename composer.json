@@ -9,7 +9,7 @@
             "email": "164710115@qq.com"
         }
     ],
-    "minimum-stability": "stable",
+    "minimum-stability": "dev",
     "require": {
         "php": "^7.1.3",
         "tcg/voyager": "^1.1"
