@@ -12,7 +12,8 @@
     "minimum-stability": "dev",
     "require": {
         "php": "^7.1.3",
-        "tcg/voyager": "^1.1"
+        "tcg/voyager": "^1.1",
+        "tiderjian/qs_lara_cmf": "v0.2"
     },
     "autoload": {
         "psr-4": {

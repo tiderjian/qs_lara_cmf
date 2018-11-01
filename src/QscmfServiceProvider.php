@@ -1,9 +1,9 @@
 <?php
 namespace QSCMF;
 
-class QscmfServiceProvider{
+use Illuminate\Support\ServiceProvider;
 
-    public function hello(){
-        echo "hello";
-    }
+class QscmfServiceProvider extends ServiceProvider{
+
+    
 }
