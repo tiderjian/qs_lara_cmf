@@ -3,7 +3,8 @@ namespace QSCMF\Commands;
 
 use Illuminate\Console\Command;
 
-class UninstallCommand extends Command {
+class UninstallCommand extends Command
+{
     /**
      * The console command name.
      *
@@ -25,7 +26,8 @@ class UninstallCommand extends Command {
      *
      * @return void
      */
-    public function handle(){
+    public function handle()
+    {
         $this->call('migrate:rollback');
     }
 }

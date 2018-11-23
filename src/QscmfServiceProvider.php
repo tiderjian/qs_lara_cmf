@@ -6,10 +6,11 @@ use QSCMF\Commands\InstallCommand;
 use QSCMF\Commands\UninstallCommand;
 use QSCMF\Commands\UnpublishCommand;
 
-class QscmfServiceProvider extends ServiceProvider{
-
-    public function register(){
-        if($this->app->runningInConsole()){
+class QscmfServiceProvider extends ServiceProvider
+{
+    public function register()
+    {
+        if ($this->app->runningInConsole()) {
             $this->commands(InstallCommand::class);
             $this->commands(UninstallCommand::class);
             $this->commands(UnpublishCommand::class);
@@ -18,8 +19,8 @@ class QscmfServiceProvider extends ServiceProvider{
         $this->loadHelpers();
     }
 
-    public function boot(){
-        
+    public function boot()
+    {
     }
 
     /**
@@ -31,6 +32,4 @@ class QscmfServiceProvider extends ServiceProvider{
             require_once $filename;
         }
     }
-
-    
 }

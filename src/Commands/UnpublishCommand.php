@@ -5,7 +5,8 @@ use Illuminate\Console\Command;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
 
-class UnpublishCommand extends Command {
+class UnpublishCommand extends Command
+{
 
     /**
      * The console command signature.
@@ -62,20 +63,19 @@ class UnpublishCommand extends Command {
      *
      * @return void
      */
-    public function handle() : void{
+    public function handle() : void
+    {
         [$this->provider, $this->tags] = [
             $this->option('provider'), $this->option('tag'),
         ];
 
-        if(!$this->provider){
+        if (!$this->provider) {
             $this->error("Please support the provider.");
         }
 
         foreach ($this->tags ?: [null] as $tag) {
             $this->unpublishTag($tag);
         }
-
-
     }
 
     /**
@@ -131,7 +131,7 @@ class UnpublishCommand extends Command {
      */
     protected function deleteFile(string $to) : void
     {
-        if ($this->files->exists($to) ) {
+        if ($this->files->exists($to)) {
             $this->files->delete($to) ? $this->status($to, true) : $this->status($to, false);
         }
     }
@@ -144,10 +144,9 @@ class UnpublishCommand extends Command {
     {
         $to = str_replace(base_path(), '', realpath($to));
 
-        if($status){
+        if ($status) {
             $this->line('<info>Deleted</info> <comment>['.$to.']</comment> ');
-        }
-        else{
+        } else {
             $this->error("Failed to delete {$to}");
         }
     }
