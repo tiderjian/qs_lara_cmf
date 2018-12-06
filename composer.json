@@ -19,6 +19,11 @@
           "QSCMF\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "QSCMF\\Tests\\": "tests/"
+        }
+    },
     "extra": {
         "laravel": {
             "providers": [
@@ -28,6 +33,8 @@
     },
     "require-dev": {
         "phpunit/phpunit": "^7.4",
-        "laravel/framework": "^5.7"
+        "phpunit/dbunit": "^4.0@dev",
+        "mikey179/vfsStream": "^2.0@dev",
+        "orchestra/testbench": "~3.7"
     }
 }

@@ -3,7 +3,10 @@ namespace QSCMF\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\ServiceProvider;
-use League\Flysystem\Filesystem;
+use Illuminate\Filesystem\Filesystem;
+use League\Flysystem\Adapter\Local as LocalAdapter;
+use League\Flysystem\Filesystem as Flysystem;
+use League\Flysystem\MountManager;
 
 class UnpublishCommand extends Command
 {
@@ -46,6 +49,11 @@ class UnpublishCommand extends Command
     protected $files;
 
     /**
+     * @var array
+     */
+    protected $dirStack = [];
+
+    /**
      * Create a new command instance.
      *
      * @param  \Illuminate\Filesystem\Filesystem  $files
@@ -73,9 +81,15 @@ class UnpublishCommand extends Command
             $this->error("Please support the provider.");
         }
 
+        $this->info("Unpublish [{$this->provider}]");
+
         foreach ($this->tags ?: [null] as $tag) {
+            $this->info("");
+            $this->info("tag [{$tag}]:");
             $this->unpublishTag($tag);
         }
+        $this->info("");
+        $this->info('Unpublishing complete.');
     }
 
     /**
@@ -115,12 +129,13 @@ class UnpublishCommand extends Command
     protected function unpublishItem(string $from, string $to) : void
     {
         if ($this->files->isFile($from)) {
-            return $this->deleteFile($from, $to);
+            $this->deleteFile($from, $to);
         } elseif ($this->files->isDirectory($from)) {
-            return $this->publishDirectory($from, $to);
+            $this->unpublishDirectory($from, $to);
         }
-
-        $this->error("Can't locate path: <{$from}>");
+        else{
+            $this->error("Can't locate path: <{$from}>");
+        }
     }
 
     /**
@@ -136,13 +151,71 @@ class UnpublishCommand extends Command
         }
     }
 
+
+    /**
+     *  delete files which have published from the $from directory to $to directory
+     *
+     * @param string $from
+     * @param string $to
+     */
+    protected function unpublishDirectory(string $from, string $to) : void
+    {
+        $this->initDelDirStack($to);
+
+        $manager = new MountManager([
+            'from' => new Flysystem(new LocalAdapter($from)),
+            'to' => new Flysystem(new LocalAdapter($to)),
+        ]);
+
+        $toPrefix = normalize_path($to);
+        foreach ($manager->listContents('from://', true) as $file) {
+            if($file['type'] === 'dir'){
+                $this->pushDelDirStack($toPrefix . DIRECTORY_SEPARATOR . $file['path']);
+            }
+
+            if ($file['type'] === 'file' && $manager->has('to://'.$file['path'])) {
+                $path = $to.DIRECTORY_SEPARATOR. $file['path'];
+                $manager->delete('to://'.$file['path']) ? $this->statusForDelFile($path, true) : $this->statusForDelFile($path, false);
+            }
+        }
+        $this->deleteEmptyDir();
+        $this->line('<info>Clear all empty directories</info>');
+    }
+
+    protected function deleteEmptyDir() : void{
+        while(null != ($dir = array_pop($this->dirStack))){
+            $flySystem = new Flysystem(new LocalAdapter(base_path()));
+            if($flySystem->has($dir) && !$flySystem->listContents($dir)){
+                rmdir($dir);
+            }
+        }
+    }
+
+
+    protected function initDelDirStack(string $to) : void
+    {
+        $to = normalize_path($to);
+        $toArr = explode('/', $to);
+        $tmp = '';
+        foreach($toArr as $toItem){
+            $tmp = empty($tmp) ? $toItem : $tmp . DIRECTORY_SEPARATOR . $toItem;
+            array_push($this->dirStack, $tmp);
+        }
+    }
+
+    protected function pushDelDirStack(string $dir) : void
+    {
+        array_push($this->dirStack, $dir);
+    }
+
+
     /**
      * @param string $to
      * @param bool $status
      */
-    protected function status(string $to, bool $status) : void
+    protected function statusForDelFile(string $to, bool $status) : void
     {
-        $to = str_replace(base_path(), '', realpath($to));
+        $to = normalize_path($to);
 
         if ($status) {
             $this->line('<info>Deleted</info> <comment>['.$to.']</comment> ');
