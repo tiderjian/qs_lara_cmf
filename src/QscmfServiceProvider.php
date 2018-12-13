@@ -17,8 +17,6 @@ class QscmfServiceProvider extends ServiceProvider
         }
 
         $this->loadHelpers();
-
-        $this->loadMigrationsFrom(__DIR__.'/path/to/migrations');
     }
 
     public function boot()

@@ -7,6 +7,7 @@ use Illuminate\Filesystem\Filesystem;
 use League\Flysystem\Adapter\Local as LocalAdapter;
 use League\Flysystem\Filesystem as Flysystem;
 use League\Flysystem\MountManager;
+use League\Flysystem\Util;
 
 class UnpublishCommand extends Command
 {
@@ -74,7 +75,7 @@ class UnpublishCommand extends Command
     public function handle() : void
     {
         [$this->provider, $this->tags] = [
-            $this->option('provider'), $this->option('tag'),
+            $this->option('provider'), (array)$this->option('tag'),
         ];
 
         if (!$this->provider) {
@@ -86,7 +87,7 @@ class UnpublishCommand extends Command
         foreach ($this->tags ?: [null] as $tag) {
             $this->info("");
             $this->info("tag [{$tag}]:");
-            $this->unpublishTag($tag);
+            is_null($tag) ? $this->unpublishTag() : $this->unpublishTag($tag);
         }
         $this->info("");
         $this->info('Unpublishing complete.');
@@ -98,7 +99,7 @@ class UnpublishCommand extends Command
      * @param  string  $tag
      * @return void
      */
-    protected function unpublishTag(string $tag) : void
+    protected function unpublishTag(string $tag = '') : void
     {
         foreach ($this->pathsToPublish($tag) as $from => $to) {
             $this->unpublishItem($from, $to);
@@ -129,11 +130,10 @@ class UnpublishCommand extends Command
     protected function unpublishItem(string $from, string $to) : void
     {
         if ($this->files->isFile($from)) {
-            $this->deleteFile($from, $to);
+            $this->deleteFile($to);
         } elseif ($this->files->isDirectory($from)) {
             $this->unpublishDirectory($from, $to);
-        }
-        else{
+        } else {
             $this->error("Can't locate path: <{$from}>");
         }
     }
@@ -147,7 +147,7 @@ class UnpublishCommand extends Command
     protected function deleteFile(string $to) : void
     {
         if ($this->files->exists($to)) {
-            $this->files->delete($to) ? $this->status($to, true) : $this->status($to, false);
+            $this->files->delete($to) ? $this->statusForDelFile($to, true) : $this->statusForDelFile($to, false);
         }
     }
 
@@ -169,7 +169,7 @@ class UnpublishCommand extends Command
 
         $toPrefix = normalize_path($to);
         foreach ($manager->listContents('from://', true) as $file) {
-            if($file['type'] === 'dir'){
+            if ($file['type'] === 'dir') {
                 $this->pushDelDirStack($toPrefix . DIRECTORY_SEPARATOR . $file['path']);
             }
 
@@ -182,11 +182,12 @@ class UnpublishCommand extends Command
         $this->line('<info>Clear all empty directories</info>');
     }
 
-    protected function deleteEmptyDir() : void{
-        while(null != ($dir = array_pop($this->dirStack))){
+    protected function deleteEmptyDir() : void
+    {
+        while (null != ($dir = array_pop($this->dirStack))) {
             $flySystem = new Flysystem(new LocalAdapter(base_path()));
-            if($flySystem->has($dir) && !$flySystem->listContents($dir)){
-                rmdir($dir);
+            if ($flySystem->has($dir) && !$flySystem->listContents($dir)) {
+                rmdir(Util::normalizePath(base_path() . DIRECTORY_SEPARATOR . $dir));
             }
         }
     }
@@ -197,7 +198,7 @@ class UnpublishCommand extends Command
         $to = normalize_path($to);
         $toArr = explode('/', $to);
         $tmp = '';
-        foreach($toArr as $toItem){
+        foreach ($toArr as $toItem) {
             $tmp = empty($tmp) ? $toItem : $tmp . DIRECTORY_SEPARATOR . $toItem;
             array_push($this->dirStack, $tmp);
         }
@@ -218,7 +219,7 @@ class UnpublishCommand extends Command
         $to = normalize_path($to);
 
         if ($status) {
-            $this->line('<info>Deleted</info> <comment>['.$to.']</comment> ');
+            $this->line('<info>Deleted</info> <comment>['.$to.']</comment>');
         } else {
             $this->error("Failed to delete {$to}");
         }
