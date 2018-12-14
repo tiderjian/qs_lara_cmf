@@ -4,6 +4,7 @@ namespace QSCMF\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
+use QSCMF\QscmfServiceProvider;
 
 class InstallCommand extends Command
 {
@@ -44,6 +45,8 @@ class InstallCommand extends Command
             $this->warn('You will need to update this manually.  Change "locale" to "zh_CN" in your app.php');
         }
         $this->getLaravel()['config']->set('app.locale', 'zh_CN');
+
+        $this->call("vendor:publish", ['--provider' => QscmfServiceProvider::class]);
 
         $this->call('voyager:install');
 

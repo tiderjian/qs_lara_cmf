@@ -52,6 +52,7 @@ class UninstallCommand extends Command
         $this->uninstallVoyager();
         $this->uninstallHook();
 
+
     }
 
     protected function uninstallVoyager(){
@@ -84,6 +85,11 @@ class UninstallCommand extends Command
         }
 
         $this->call('qscmf:unpublish', ['--provider' => VoyagerServiceProvider::class, '--tag' => 'config']);
+
+        if($this->filesystem->exists(public_path('storage'))){
+            $this->filesystem->delete(public_path('storage'));
+            $this->info("delete symbolick link 'public/storage'");
+        }
     }
 
     protected function uninstallHook(){
