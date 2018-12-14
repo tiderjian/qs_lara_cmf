@@ -7,6 +7,7 @@ use Intervention\Image\ImageServiceProviderLaravel5;
 use Larapack\Hooks\Composer;
 use Larapack\Hooks\HooksServiceProvider;
 use Larapack\VoyagerHooks\VoyagerHooksServiceProvider;
+use QSCMF\QscmfServiceProvider;
 use TCG\Voyager\VoyagerServiceProvider;
 
 class UninstallCommand extends Command
@@ -49,6 +50,7 @@ class UninstallCommand extends Command
      */
     public function handle()
     {
+        $this->call("qscmf:unpublish", ['--provider' => QscmfServiceProvider::class]);
         $this->uninstallVoyager();
         $this->uninstallHook();
 
