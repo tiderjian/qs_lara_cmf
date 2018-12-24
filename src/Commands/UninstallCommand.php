@@ -76,22 +76,19 @@ class UninstallCommand extends Command
                 $str = str_replace("extends \TCG\Voyager\Models\User", 'extends Authenticatable', $str);
 
                 file_put_contents(app_path('User.php'), $str);
+
+                $this->info("Revert " . app_path('User.php'));
             }
         }
 
-        $this->info("delete Voyager routes from routes/web.php");
         $routes_contents = $this->filesystem->get(base_path('routes/web.php'));
         if (false !== strpos($routes_contents, 'Voyager::routes()')) {
             $routes_contents = str_replace("\n\nRoute::group(['prefix' => 'admin'], function () {\n    Voyager::routes();\n});\n", "", $routes_contents);
             $this->filesystem->put(base_path('routes/web.php'), $routes_contents);
+            $this->info("delete Voyager routes from routes/web.php");
         }
 
         $this->call('qscmf:unpublish', ['--provider' => VoyagerServiceProvider::class, '--tag' => 'config']);
-
-        if($this->filesystem->exists(public_path('storage'))){
-            $this->filesystem->delete(public_path('storage'));
-            $this->info("delete symbolick link 'public/storage'");
-        }
     }
 
     protected function uninstallHook(){
