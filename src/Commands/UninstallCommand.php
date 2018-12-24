@@ -54,10 +54,10 @@ class UninstallCommand extends Command
         $this->uninstallVoyager();
         $this->uninstallHook();
         $this->deleteStorageLink();
-
     }
 
-    protected function uninstallVoyager(){
+    protected function uninstallVoyager()
+    {
         $this->info('Unpublishing the Voyager assets, database, and config files');
 
         $tags = ['voyager_assets', 'seeds'];
@@ -91,12 +91,13 @@ class UninstallCommand extends Command
         $this->call('qscmf:unpublish', ['--provider' => VoyagerServiceProvider::class, '--tag' => 'config']);
     }
 
-    protected function uninstallHook(){
+    protected function uninstallHook()
+    {
         $composer = new Composer(base_path('composer.json'));
 
         $hooks = $composer->get("repositories.hooks", null);
 
-        if($hooks){
+        if ($hooks) {
             $composer->set("repositories.hooks", null)->save();
             $this->info("clear repositories.hooks setting in the composer.json");
         }
@@ -107,11 +108,11 @@ class UninstallCommand extends Command
     }
 
 
-    protected function deleteStorageLink(){
-        if($this->filesystem->exists(public_path('storage'))){
+    protected function deleteStorageLink()
+    {
+        if ($this->filesystem->exists(public_path('storage'))) {
             $this->filesystem->delete(public_path('storage'));
             $this->info("delete storage link.");
         }
-
     }
 }

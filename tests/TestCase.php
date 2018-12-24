@@ -12,7 +12,6 @@ use TCG\Voyager\VoyagerServiceProvider;
 
 class TestCase extends OrchestraTestCase
 {
-
     public function __construct(?string $name = null, array $data = [], string $dataName = '')
     {
         parent::__construct($name, $data, $dataName);

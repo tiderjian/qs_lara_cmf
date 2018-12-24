@@ -3,9 +3,10 @@ namespace QSCMF\Tests\Commands;
 
 use QSCMF\Tests\TestCase;
 
-class UninstallCommandTest extends TestCase{
-
-    public function testUninstallCommand(){
+class UninstallCommandTest extends TestCase
+{
+    public function testUninstallCommand()
+    {
         $this->artisan("qscmf:install")
             ->expectsQuestion("Enter the admin name", "admin")
             ->expectsQuestion("Enter admin password", "123456")
@@ -34,12 +35,13 @@ class UninstallCommandTest extends TestCase{
 //            ->expectsOutput("Deleted [config/voyager-hooks.php]");
     }
 
-    protected function deleteFileOutput($path){
+    protected function deleteFileOutput($path)
+    {
         return "Deleted [" . normalize_path($path) . "]";
     }
 
-    protected  function deleteDirectoryOutput($path){
+    protected function deleteDirectoryOutput($path)
+    {
         return "Deleted directory [" . normalize_path($path) . "]";
     }
-
 }

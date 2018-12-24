@@ -85,7 +85,9 @@ class UnpublishCommand extends Command
 
         foreach ($this->tags ?: [null] as $tag) {
             $this->info("");
-            if($tag) $this->info("tag [{$tag}]:");
+            if ($tag) {
+                $this->info("tag [{$tag}]:");
+            }
             is_null($tag) ? $this->unpublishTag() : $this->unpublishTag($tag);
         }
         $this->info("");

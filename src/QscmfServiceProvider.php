@@ -21,8 +21,7 @@ class QscmfServiceProvider extends ServiceProvider
 
     public function boot()
     {
-        if($this->app->runningInConsole()){
-
+        if ($this->app->runningInConsole()) {
             $defaultAvatarPath = $this->app['path.base'] . '/vendor/tcg/voyager/publishable/dummy_content/users/default.png';
 
             $this->app['files']->exists($defaultAvatarPath)
