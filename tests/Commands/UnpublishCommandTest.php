@@ -35,11 +35,22 @@ class UnpublishCommandTest extends TestCase
         $this->checkAssets('unpublish');
 
         $this->unpublish('')->expectsOutput('Please support the provider.');
+    }
 
+
+    public function testUnpublishContainLink(){
+        $files = $this->app->make('files');
+        if(!$files->exists(public_path('storage')))
+            $files->link(storage_path('app'), public_path('storage'));
+
+        $this->unpublish('TCG\Voyager\VoyagerServiceProvider')->expectsOutput("Unpublishing complete.");
+
+        $link = public_path('storage');
+        $files->delete($link);
     }
 
     protected function publish(string $provider, Array $tags = []) : PendingCommand{
-        if(!$tags)
+        if($tags)
             return $this->artisan('vendor:publish', [
                 '--provider' => $provider,
                 '--tag' =>$tags
@@ -51,7 +62,7 @@ class UnpublishCommandTest extends TestCase
     }
 
     protected function unpublish(string $provider, Array $tags = []) : PendingCommand{
-        if(!$tags)
+        if($tags)
             return $this->artisan('qscmf:unpublish', [
                 '--provider' => $provider,
                 '--tag' => $tags
@@ -63,8 +74,8 @@ class UnpublishCommandTest extends TestCase
     }
 
     protected function checkSeeds(string $type) : void{
-        $test_file = Util::normalizePath(database_path('seeds/DataRowsTableSeeder.php'));
-        $test_dir = Util::normalizePath(database_path('seeds'));
+        $test_file = database_path('seeds/DataRowsTableSeeder.php');
+        $test_dir = database_path('seeds');
 
         if($type == 'publish'){
             $this->assertFileExists($test_file);
@@ -77,7 +88,7 @@ class UnpublishCommandTest extends TestCase
     }
 
     protected function checkConfig(string $type) : void{
-        $test_file = Util::normalizePath(config_path('voyager.php'));
+        $test_file = config_path('voyager.php');
 
         if($type == 'publish'){
             $this->assertFileExists($test_file);
@@ -88,8 +99,8 @@ class UnpublishCommandTest extends TestCase
     }
 
     protected function checkAssets(string $type) :void{
-        $test_file = Util::normalizePath(public_path(config('voyager.assets_path')) . '/css/app.css');
-        $test_dir = Util::normalizePath(public_path(config('voyager.assets_path')) . '/css');
+        $test_file = public_path(config('voyager.assets_path')) . '/css/app.css';
+        $test_dir = public_path(config('voyager.assets_path')) . '/css';
 
         if($type == 'publish'){
             $this->assertFileExists($test_file);
