@@ -12,7 +12,7 @@ use TCG\Voyager\VoyagerServiceProvider;
 
 class TestCase extends OrchestraTestCase
 {
-    public function __construct(?string $name = null, array $data = [], string $dataName = '')
+    public function __construct(?string $name = null, array $data = [], string $dataName = null)
     {
         parent::__construct($name, $data, $dataName);
         $this->hotfixSqlite();

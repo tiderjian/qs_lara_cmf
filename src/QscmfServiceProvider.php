@@ -21,12 +21,22 @@ class QscmfServiceProvider extends ServiceProvider
 
     public function boot()
     {
+
+
         if ($this->app->runningInConsole()) {
-            $defaultAvatarPath = $this->app['path.base'] . '/vendor/tcg/voyager/publishable/dummy_content/users/default.png';
+
+            if(config('app.env') == 'testing'){
+                $defaultAvatarPath = dirname(__DIR__) . "/vendor/tcg/voyager/publishable/dummy_content/users/default.png";
+            }else{
+                $defaultAvatarPath = $this->app['path.base'] . '/vendor/tcg/voyager/publishable/dummy_content/users/default.png';
+            }
+
 
             $this->app['files']->exists($defaultAvatarPath)
             && $this->publishes([$defaultAvatarPath => storage_path('app/public/users/default.png')], 'default_avatar');
         }
+
+        $this->loadMigrationsFrom(realpath(__DIR__.'/migrations'));
     }
 
     /**
