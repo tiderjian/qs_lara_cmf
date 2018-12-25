@@ -65,8 +65,8 @@ class UninstallCommand extends Command
         $this->call('qscmf:unpublish', ['--provider' => VoyagerServiceProvider::class, '--tag' => $tags]);
         $this->call('qscmf:unpublish', ['--provider' => ImageServiceProviderLaravel5::class]);
 
-        $this->info('database rollback');
-        $this->call('migrate:rollback');
+        $this->info('database reset');
+        $this->call('migrate:reset');
 
         $this->info('Attempting to return laravel User model');
         if (file_exists(app_path('User.php'))) {
